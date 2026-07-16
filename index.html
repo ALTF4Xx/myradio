@@ -1,245 +1,428 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Revo's Radio Archive</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Revo's Radio Archive — One Year on the Air</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Text:wght@600;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0a0c08;
+    --bg-panel:#14170f;
+    --bg-card:#181c12;
+    --hairline:#2a2f21;
+    --dial-amber:#d99a3f;
+    --signal-green:#7ea87f;
+    --static-red:#b8453a;
+    --text-warm:#e9e3d0;
+    --text-muted:#8f9080;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg-deep);
+    color:var(--text-warm);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--dial-amber);}
+  a:hover{color:var(--signal-green);}
+
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  /* ---------- Header ---------- */
+  header{
+    position:relative;
+    background:
+      radial-gradient(ellipse at top, rgba(217,154,63,0.08), transparent 60%),
+      var(--bg-panel);
+    border-bottom:1px solid var(--hairline);
+    padding:3.5rem 1.5rem 2.5rem;
+    overflow:hidden;
+  }
+  header::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events:none;
+  }
+  .eyebrow{
+    position:relative;
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    font-size:.7rem;
+    color:var(--signal-green);
+    margin:0 0 .9rem;
+  }
+  .eyebrow::before{content:"● ";}
+  h1{
+    position:relative;
+    text-align:center;
+    font-family:'Big Shoulders Stencil Text', sans-serif;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.02em;
+    font-size:clamp(2.4rem, 7vw, 4.5rem);
+    line-height:.95;
+    margin:0;
+    color:var(--text-warm);
+    text-shadow:0 0 24px rgba(217,154,63,0.25);
+  }
+  header p.tag{
+    position:relative;
+    text-align:center;
+    color:var(--text-muted);
+    max-width:36rem;
+    margin:1rem auto 0;
+    font-size:.95rem;
+  }
+
+  /* ---------- Signal strip (signature element) ---------- */
+  .signal-strip{
+    position:relative;
+    background:var(--bg-deep);
+    border-bottom:1px solid var(--hairline);
+    padding:1.2rem 1.5rem;
+  }
+  .signal-inner{
+    max-width:64rem;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:1rem;
+    align-items:center;
+  }
+  @media(min-width:768px){
+    .signal-inner{grid-template-columns: 2fr 1fr;}
+  }
+  svg.trace{width:100%; height:56px; display:block;}
+  .trace path{
+    fill:none;
+    stroke:var(--signal-green);
+    stroke-width:1.5;
+    stroke-linecap:round;
+    stroke-dasharray:6 4;
+    animation:scan 3.5s linear infinite;
+    opacity:.85;
+  }
+  @keyframes scan{
+    to{stroke-dashoffset:-200;}
+  }
+  .stats{
+    display:flex;
+    gap:1.5rem;
+    justify-content:flex-end;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .stat{text-align:right;}
+  .stat .n{display:block; font-size:1.3rem; color:var(--dial-amber); font-weight:600;}
+  .stat .l{display:block; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--text-muted);}
+
+  @media (prefers-reduced-motion: reduce){
+    .trace path{animation:none;}
+  }
+
+  /* ---------- Log grid ---------- */
+  main{
+    padding:2.5rem 1.5rem 1rem;
+    max-width:80rem;
+    margin:0 auto;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:1.25rem;
+  }
+  @media(min-width:768px){ .grid{grid-template-columns:1fr 1fr;} }
+  @media(min-width:1100px){ .grid{grid-template-columns:1fr 1fr 1fr;} }
+
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--hairline);
+    border-radius:6px;
+    padding:1.15rem 1.15rem 1.3rem;
+    display:flex;
+    flex-direction:column;
+    gap:.65rem;
+    transition:border-color .15s ease;
+  }
+  .card:hover{border-color:var(--dial-amber);}
+
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:.5rem;
+  }
+  .entry-no{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.65rem;
+    color:var(--text-muted);
+    letter-spacing:.1em;
+  }
+  .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.6rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    padding:.15rem .5rem;
+    border-radius:3px;
+    border:1px solid var(--hairline);
+    white-space:nowrap;
+  }
+  .tag.mystery{color:var(--dial-amber); border-color:rgba(217,154,63,0.4);}
+  .tag.numbers{color:var(--signal-green); border-color:rgba(126,168,127,0.4);}
+  .tag.military{color:var(--static-red); border-color:rgba(184,69,58,0.5);}
+  .tag.utility{color:var(--text-muted); border-color:var(--hairline);}
+  .tag.repeater{color:#9ab6c9; border-color:rgba(154,182,201,0.4);}
+  .tag.pager{color:#c9a8d6; border-color:rgba(201,168,214,0.4);}
+  .tag.test{color:var(--text-muted); border-color:var(--hairline);}
+
+  h2.title{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:1.02rem;
+    color:var(--text-warm);
+    margin:0;
+    line-height:1.3;
+  }
+
+  audio{width:100%; height:34px; filter:invert(0.9) hue-rotate(30deg) saturate(0.6);}
+
+  .meta{
+    display:flex;
+    gap:1rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.72rem;
+    color:var(--text-muted);
+    border-top:1px dashed var(--hairline);
+    padding-top:.55rem;
+  }
+  .meta b{color:var(--dial-amber); font-weight:500;}
+
+  p.desc{
+    margin:0;
+    font-size:.85rem;
+    line-height:1.5;
+    color:#c7c3b3;
+  }
+
+  footer{
+    text-align:center;
+    color:var(--text-muted);
+    padding:2.5rem 1.5rem 3rem;
+    font-size:.85rem;
+    border-top:1px solid var(--hairline);
+    margin-top:2rem;
+  }
+</style>
 </head>
-<body class="bg-gray-900 text-white font-sans">
-  <header class="bg-black shadow-md p-6">
-    <h1 class="text-3xl font-bold text-center text-red-500">📻 Revo's Radio Archive</h1>
-    <p class="text-center text-gray-300 mt-2">Moments of <a href="https://www.youtube.com/@TYPOxFALL" target="_blank" class="text-blue-400 hover:underline">Radio</a> that I find interesting enough to archive and share.</p>
+<body>
+
+  <header>
+    <p class="eyebrow">Logbook established Aug 2025</p>
+    <h1>One Year on the Air</h1>
+    <p class="tag">📻 Moments of <a href="https://www.youtube.com/@TYPOxFALL" target="_blank">Radio</a> that I find interesting enough to archive and share — now with a year of static, signals, and static-adjacent mysteries behind it.</p>
   </header>
 
-  <main class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-    <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">UVB-76 / Possible Buzzer Pirate / Log 1 /</h2>
-      <audio controls class="w-full">
-        <source src="UVBWebLog1.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: Aug 1, 2025<br>Band: 4625 USB</p>
-     <p> Speaking starts around 1:20, some say this is a pirate but I am not so sure.
+  <div class="signal-strip">
+    <div class="signal-inner">
+      <svg class="trace" viewBox="0 0 600 56" preserveAspectRatio="none">
+        <path d="M0,28 L20,28 L28,10 L36,46 L44,28 L80,28 L88,18 L96,38 L104,28 L160,28 L170,6 L178,50 L186,28 L240,28 L248,20 L256,34 L264,28 L320,28 L330,12 L338,44 L346,28 L410,28 L418,22 L426,32 L434,28 L500,28 L510,8 L518,48 L526,28 L600,28" />
+      </svg>
+      <div class="stats">
+        <div class="stat"><span class="n">21</span><span class="l">logs archived</span></div>
+        <div class="stat"><span class="n">~350</span><span class="l">days on air</span></div>
+        <div class="stat"><span class="n">14+</span><span class="l">frequencies</span></div>
+      </div>
     </div>
+  </div>
 
-    <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">NAVTEX navigation warning / Log 1 /</h2>
-      <audio controls class="w-full">
-        <source src="SunkenBulldozer1.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: August 3, 2025<br>Band: 8416.00 USB</p>
-      <p>NAVTEX Navigation warnings, not a sunken bulldozer.</p>
+  <main>
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 001</span><span class="tag mystery">Mystery</span></div>
+        <h2 class="title">UVB-76 / Possible Buzzer Pirate / Log 1 /</h2>
+        <audio controls><source src="UVBWebLog1.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Speaking starts around 1:20, some say this is a pirate but I am not so sure.</p>
+        <div class="meta"><span><b>Aug 1, 2025</b></span><span>4625 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 002</span><span class="tag utility">Utility</span></div>
+        <h2 class="title">NAVTEX navigation warning / Log 1 /</h2>
+        <audio controls><source src="SunkenBulldozer1.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">NAVTEX Navigation warnings, not a sunken bulldozer.</p>
+        <div class="meta"><span><b>Aug 3, 2025</b></span><span>8416.00 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 003</span><span class="tag numbers">Numbers Station</span></div>
+        <h2 class="title">Idle CIS - 12 / Log 1 /</h2>
+        <audio controls><source src="IDLECIS12LOG1.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Some sort of idle station.</p>
+        <div class="meta"><span><b>Aug 4, 2025</b></span><span>14024 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 004</span><span class="tag numbers">Numbers Station</span></div>
+        <h2 class="title">CIS - 12 / A noise / Log 2 /</h2>
+        <audio controls><source src="CIS12MORSELOG2.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Said idle station, making some sort of noise.</p>
+        <div class="meta"><span><b>Aug 4, 2025</b></span><span>14024 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 005</span><span class="tag repeater">Repeater</span></div>
+        <h2 class="title">Radio Repeater in Hungary, "HP Repeater" / Log 1 /</h2>
+        <audio controls><source src="RadioRepeaterHungary1.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Great propagation, and I got a good recording.</p>
+        <div class="meta"><span><b>Aug 4, 2025</b></span><span>27285 FM</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 006</span><span class="tag repeater">Repeater</span></div>
+        <h2 class="title">Radio Repeater in Hungary, "HP Repeater" / Log 2 /</h2>
+        <audio controls><source src="HungaryRepeaterLog2.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">This log contains some great audio, and I got some good moments with it. Update: I sent them an Email, and they sent one back! So cool what you can find on shortwave.</p>
+        <div class="meta"><span><b>Aug 4, 2025</b></span><span>27285 FM</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 007</span><span class="tag pager">Pager</span></div>
+        <h2 class="title">Pager Transmission / Log 1/</h2>
+        <audio controls><source src="26985PagerTransmissionLog1.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">This is a pager transmission, according to the one who shared it with me.</p>
+        <div class="meta"><span><b>Aug 4, 2025</b></span><span>26985 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 008</span><span class="tag mystery">Mystery</span></div>
+        <h2 class="title">UVB-76 / Normal Operations / Log 2 /</h2>
+        <audio controls><source src="UVB76Log2.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">UVB sounding good on the WebSDR.</p>
+        <div class="meta"><span><b>Aug 4, 2025</b></span><span>4625 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 009</span><span class="tag mystery">Mystery</span></div>
+        <h2 class="title">Weather Station? / Propagation conditions ? / Log 1 /</h2>
+        <audio controls><source src="5450USBLog1.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Could be some weather station like we have in the US, but for somewhere else. Sounds like something from subnautica though.</p>
+        <div class="meta"><span><b>Aug 4, 2025</b></span><span>5450 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 010</span><span class="tag military">Military</span></div>
+        <h2 class="title">USAF EAM / Some sort of message / Log 1 /</h2>
+        <audio controls><source src="USAFEAM4724USBLog1.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Wish I knew what this stuff meant.. Before the audio cuts, the operator says "All stations.." and then more letters. Also found on 11175 USB, 8992 USB, and 15016 USB.</p>
+        <div class="meta"><span><b>Aug 4, 2025</b></span><span>4724 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 011</span><span class="tag mystery">Mystery</span></div>
+        <h2 class="title">Israel "Navy"/ Morse? / Log 1 /</h2>
+        <audio controls><source src="6607USBIsraelLog1.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Someone said this was the Israelian Navy. Doubt.</p>
+        <div class="meta"><span><b>Aug 6, 2025</b></span><span>6607 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 012</span><span class="tag numbers">Numbers Station</span></div>
+        <h2 class="title">CIS 12 / Beeps / Log 3 /</h2>
+        <audio controls><source src="CIS12Log3USB14024.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Another CIS 12 log.</p>
+        <div class="meta"><span><b>Aug 6, 2025</b></span><span>14024 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 013</span><span class="tag mystery">Mystery</span></div>
+        <h2 class="title">Santa Monica Station / Loud Noises / Log 1 /</h2>
+        <audio controls><source src="SantaMariaRadio8906USBLog1.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Some station in Santa Monica</p>
+        <div class="meta"><span><b>Aug 6, 2025</b></span><span>8906 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 014</span><span class="tag utility">Utility</span></div>
+        <h2 class="title">VOLMET / Regular Traffic / Log 1 /</h2>
+        <audio controls><source src="VOLMET51020261.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">This is VOLMET, a worldwide network of radio stations that broadcast TAF, SIGMET and METAR reports on shortwave frequencies, and in some countries on VHF too. Reports are sent in upper sideband mode, using automated voice transmissions. This one is in Shannon, Ireland.</p>
+        <div class="meta"><span><b>May 10, 2026</b></span><span>5505.00 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 015</span><span class="tag mystery">Mystery</span></div>
+        <h2 class="title">UVB-76 (The Buzzer) / Irregular Beeps / Log 3 /</h2>
+        <audio controls><source src="76uvbbeeps1.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Some odd beeps I caught on my livestream.</p>
+        <div class="meta"><span><b>May 13, 2026</b></span><span>4625.00 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 016</span><span class="tag numbers">Numbers Station</span></div>
+        <h2 class="title">S11a Cherta / Normal Transmission / Log 1</h2>
+        <audio controls><source src="s11a51420261.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Caught S11a late at night.</p>
+        <div class="meta"><span><b>May 14, 2026</b></span><span>9339.00 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 017</span><span class="tag mystery">Mystery</span></div>
+        <h2 class="title">UVB-76 (The Buzzer) / FNAF 2? / Log 4</h2>
+        <audio controls><source src="uvb76hijack51526fnaf.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">This audio was caught on my live stream. The hijacker plays a song by the Living Tombstone and some other.</p>
+        <div class="meta"><span><b>May 15, 2026</b></span><span>4625.00 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 018</span><span class="tag mystery">Mystery</span></div>
+        <h2 class="title">The Pip / Normal Operation / Log 1</h2>
+        <audio controls><source src="thepip20260629.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Got this pretty late at night on the webSDR.</p>
+        <div class="meta"><span><b>June 26, 2026</b></span><span>5448 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 019</span><span class="tag test">Test</span></div>
+        <h2 class="title">FT8 Decode Test / Log 1</h2>
+        <audio controls><source src="FT8Decode7132026mp3.mp3" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">First time I decoded FT8 using wsjtx!</p>
+        <div class="meta"><span><b>July 13, 2026</b></span><span>N/A</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 020</span><span class="tag military">Military</span></div>
+        <h2 class="title">Russian T Marker / Log 1</h2>
+        <audio controls><source src="6806ukrainianmessage.wav" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Drone danger. Drone danger. Stop vehicles. Everyone to shelter. Everyone to shelter. Attention, attention! Air danger. Air danger. Two enemy F-16s south of the settlement of Kharkiv, heading east-southeast.</p>
+        <div class="meta"><span><b>July 13, 2026</b></span><span>6806 USB</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-top"><span class="entry-no">ENTRY 021</span><span class="tag military">Military</span></div>
+        <h2 class="title">Russian T Marker / Log 2</h2>
+        <audio controls><source src="68067152026.mp3" type="audio/mpeg">Your browser does not support the audio element.</audio>
+        <p class="desc">Also warn [them], recently there was military [activity/information] incoming ... east. Also, aviation danger, aviation danger ... Everyone to shelter, everyone take cover!</p>
+        <div class="meta"><span><b>July 15, 2026</b></span><span>6806 USB</span></div>
+      </div>
+
     </div>
-
-
-        <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">Idle CIS - 12 / Log 1 /</h2>
-      <audio controls class="w-full">
-        <source src="IDLECIS12LOG1.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: Aug 4, 2025<br>Band: 14024 USB</p>
-     <p> Some sort of idle station.
-    </div>
-
-
-        <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">CIS - 12 / A noise / Log 2 /</h2>
-      <audio controls class="w-full">
-        <source src="CIS12MORSELOG2.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: Aug 4, 2025<br>Band: 14024 USB</p>
-     <p> Said idle station, making some sort of noise.
-    </div>
-
-
-  <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">Radio Repeater in Hungary, "HP Repeater" / Log 1 /</h2>
-      <audio controls class="w-full">
-        <source src="RadioRepeaterHungary1.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: Aug 4, 2025<br>Band: 27285 FM</p>
-     <p> Great propagation, and I got a good recording. </p>
-    </div>
-
-
-      <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">Radio Repeater in Hungary, "HP Repeater" / Log 2 /</h2>
-      <audio controls class="w-full">
-        <source src="HungaryRepeaterLog2.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: Aug 4, 2025<br>Band: 27285 FM</p>
-     <p> This log contains some great audio, and I got some good moments with it. Update: I sent them an Email, and they sent one back! So cool what you can find on shortwave. </p>
-    </div>
-
-<div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">Pager Transmission / Log 1/ </h2>
-      <audio controls class="w-full">
-        <source src="26985PagerTransmissionLog1.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: Aug 4, 2025<br>Band: 26985 USB </p>
-     <p> This is a pager transmission, according to the one who shared it with me. </p>
-    </div>
-
-
- <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">UVB-76 / Normal Operations / Log 2 /</h2>
-      <audio controls class="w-full">
-        <source src="UVB76Log2.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: Aug 4, 2025<br>Band: 4625 USB</p>
-     <p> UVB sounding good on the WebSDR.
-    </div>
-
-
- <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">Weather Station? / Propagation conditions ? / Log 1 / </h2>
-      <audio controls class="w-full">
-        <source src="5450USBLog1.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: Aug 4, 2025<br>Band: 5450 USB</p>
-     <p> Could be some weather station like we have in the US, but for somewhere else. Sounds like something from subnautica though.
-    </div>
-
-
- <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">USAF EAM / Some sort of message / Log 1 / </h2>
-      <audio controls class="w-full">
-        <source src="USAFEAM4724USBLog1.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: Aug 4, 2025<br>Band: 4724 USB</p>
-     <p> Wish I knew what this stuff meant.. Before the audio cuts, the operator says "All stations.." and then more letters. Also found on 11175 USB, 8992 USB, and 15016 USB.
-    </div>
-
-     <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">Israel "Navy"/ Morse? / Log 1 / </h2>
-      <audio controls class="w-full">
-        <source src="6607USBIsraelLog1.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: Aug 6, 2025<br>Band: 6607 USB</p>
-     <p> Someone said this was the Israelian Navy. Doubt.
-    </div>
-
-
-<div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">CIS 12 / Beeps / Log 3 / </h2>
-      <audio controls class="w-full">
-        <source src="CIS12Log3USB14024.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: Aug 6, 2025<br>Band: 14024 USB</p>
-     <p> Another CIS 12 log.
-    </div>
-
-
-<div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">Santa Monica Station / Loud Noises / Log 1 / </h2>
-      <audio controls class="w-full">
-        <source src="SantaMariaRadio8906USBLog1.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: Aug 6, 2025<br>Band: 8906 USB</p>
-     <p> Some station in Santa Monica
-    </div>
-
-    
-    <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">VOLMET / Regular Traffic / Log 1 / </h2>
-      <audio controls class="w-full">
-        <source src="VOLMET51020261.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: May 10, 2026<br>Band: 5505.00 USB</p>
-     <p> This is VOLMET, a worldwide network of radio stations that broadcast TAF, SIGMET and METAR reports on shortwave frequencies, and in some countries on VHF too. Reports are sent in upper sideband mode, using automated voice transmissions. This one is in Shannon, Ireland. </p>
-    </div>
-
-     <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">UVB-76 (The Buzzer) / Irregular Beeps / Log 3 / </h2>
-      <audio controls class="w-full">
-        <source src="76uvbbeeps1.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: May 13, 2026<br>Band: 4625.00 USB</p>
-     <p>Some odd beeps I caught on my livestream. </p>
-    </div>
-
- <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">S11a Cherta / Normal Transmission / Log 1 </h2>
-      <audio controls class="w-full">
-        <source src="s11a51420261.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: May 14, 2026<br>Band: 9339.00 USB</p>
-     <p>Caught S11a late at night. </p>
-    </div>
-
-     <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">UVB-76 (The Buzzer) / FNAF 2? / Log 4 </h2>
-      <audio controls class="w-full">
-        <source src="uvb76hijack51526fnaf.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: May 15, 2026<br>Band: 4625.00 USB</p>
-     <p>This audio was caught on my live stream. The hijacker plays a song by the Living Tombstone and some other. </p>
-    </div>
-
-     <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">The Pip / Normal Operation / Log 1 </h2>
-      <audio controls class="w-full">
-        <source src="thepip20260629.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: June 26, 2026<br>Band: 5448 USB</p>
-     <p>Got this pretty late at night on the webSDR. </p>
-    </div>
-
-    <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">FT8 Decode Test / Log 1 </h2>
-      <audio controls class="w-full">
-        <source src="FT8Decode7132026mp3.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: July 13, 2026<br>Band: N/A</p>
-     <p>First time I decoded FT8 using wsjtx! </p>
-    </div>
-
-    <div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">Russian T Marker / Log 1 </h2>
-      <audio controls class="w-full">
-        <source src="6806ukrainianmessage.wav" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: July 13, 2026<br>Band: 6806 USB</p>
-     <p>Drone danger. Drone danger. Stop vehicles. Everyone to shelter. Everyone to shelter. Attention, attention! Air danger. Air danger. Two enemy F-16s south of the settlement of Kharkiv, heading east-southeast. </p>
-    </div>
-
-<div class="bg-gray-800 rounded-2xl shadow-lg p-4">
-      <h2 class="text-xl font-semibold text-red-400 mb-2">Russian T Marker / Log 2 </h2>
-      <audio controls class="w-full">
-        <source src="68067152026.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <p class="mt-2 text-sm text-gray-400">Date: July 15, 2026<br>Band: 6806 USB</p>
-     <p>Also warn [them], recently there was military [activity/information] incoming ... east. Also, aviation danger, aviation danger ... Everyone to shelter, everyone take cover! </p>
-    </div>
-
-    
   </main>
 
-  <footer class="bg-black text-center text-gray-500 p-4">
+  <footer>
     Source code, and raw audio files can be found on
-    <a href="https://github.com/ALTF4Xx/myradio" target="_blank" class="text-blue-400 hover:underline">GitHub</a>
+    <a href="https://github.com/ALTF4Xx/myradio" target="_blank">GitHub</a>
   </footer>
+
 </body>
 </html>
